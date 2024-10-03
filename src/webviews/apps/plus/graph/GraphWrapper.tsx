@@ -85,6 +85,7 @@ import { GlSearchBox } from '../../shared/components/search/react';
 import type { SearchNavigationEventDetail } from '../../shared/components/search/search-box';
 import type { DateTimeFormat } from '../../shared/date';
 import { formatDate, fromNow } from '../../shared/date';
+import { emitTelemetrySentEvent } from '../../shared/telemetry';
 import { GitActionsButtons } from './actions/gitActionsButtons';
 import { GlGraphHover } from './hover/graphHover.react';
 import type { GraphMinimapDaySelectedEventDetail } from './minimap/minimap';
@@ -462,6 +463,8 @@ export function GraphWrapper({
 		}
 
 		graphRef.current?.selectCommits([sha], false, true);
+
+		queueMicrotask(() => e.target && emitTelemetrySentEvent(e.target, { name: 'graph/minimap/daySelected' }));
 	};
 
 	const handleOnMinimapToggle = (_e: React.MouseEvent) => {
@@ -1004,6 +1007,9 @@ export function GraphWrapper({
 										className="action-button"
 										style={{ marginRight: '-0.5rem' }}
 										aria-label={`Open Repository on ${repo.provider.name}`}
+										onClick={e =>
+											emitTelemetrySentEvent(e.target, { name: 'graph/repository/openOnRemote' })
+										}
 									>
 										<span
 											className={
